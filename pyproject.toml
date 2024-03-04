@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "uba-system"
+version = "0.1.0"
+description = ""
+authors = ["Zudenkov S"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pika = "^1.3.2"
+scikit-learn = '^1.2.0'
+clickhouse_driver = '^0.2.5'
+pandas = '^2.1.0'
+numpy = '^1.25.0'
+pyarrow = '^14.0.0'
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+black = "^23.10.1"
+flake8 = "^6.1.0"
+pylint = "^2.17.5"
+isort = "^5.12.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

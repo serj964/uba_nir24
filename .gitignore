@@ -1,0 +1,15 @@
+__pycache__/
+venv/
+.idea/
+.pyre/
+build/
+postgres-data/
+rabbitmq-data/
+*cache*
+*.pyc
+*.so
+*.a
+*.egg-info
+tmp/*
+.vscode
+*.DS_Store

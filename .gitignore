@@ -5,6 +5,7 @@ venv/
 build/
 postgres-data/
 rabbitmq-data/
+r4.2/
 *cache*
 *.pyc
 *.so
@@ -13,3 +14,4 @@ rabbitmq-data/
 tmp/*
 .vscode
 *.DS_Store
+logon+device+file_order_by_datetime.csv

@@ -1,0 +1,2 @@
+SUM = 'sum'
+MEAN = 'mean'

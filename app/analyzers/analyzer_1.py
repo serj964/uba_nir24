@@ -1,39 +1,37 @@
 
-import numpy as np
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 
 from app.externals.clickhouse import CH_CLIENT, get_df
 
-"""SELECT_PREVIOUS_QUERY = 'SELECT * FROM test'
-SELECT_LATEST_QUERY = 'SELECT * FROM test_2'"""
-SELECT_QUERY = 'SELECT * FROM test_2'
+SELECT_PREVIOUS_QUERY = 'SELECT * FROM previous_analyzer'
+SELECT_NEW_QUERY = 'SELECT * FROM new_analyzer'
 
 
 def _isolation_forest(previous_samples: pd.DataFrame, new_samples: pd.DataFrame):
-    #previous_samples = previous_samples.to_numpy()
-    #new_samples = new_samples.to_numpy()
-    samples.to_numpy()
+    previous_samples_np = previous_samples[previous_samples.columns[3:]].to_numpy()
+    new_samples_np = new_samples[new_samples.columns[3:]].to_numpy()
 
     clf = IsolationForest(random_state=0)
-    #clf.fit(previous_samples)
+    clf.fit(previous_samples_np)
 
-    #anomaly_score = clf.score_samples(new_samples)
+    anomaly_score = clf.score_samples(new_samples_np)
 
-    #return anomaly_score
-    return clf.fit_predict()
+    anomaly_score_df = new_samples[['user', 'date']]
+    anomaly_score_df['anomaly_score'] = anomaly_score
+
+    return anomaly_score_df
 
 
 def main():
-    """previous_samples = get_df(CH_CLIENT, SELECT_PREVIOUS_QUERY)
-    new_samples = get_df(CH_CLIENT, SELECT_LATEST_QUERY)"""
-    #samples = _isolation_forest(previous_samples, new_samples)
+    previous_samples = get_df(CH_CLIENT, SELECT_PREVIOUS_QUERY)
+    new_samples = get_df(CH_CLIENT, SELECT_NEW_QUERY)
 
-    #anomaly_score = _isolation_forest(previous_samples, new_samples)
+    anomaly_score = _isolation_forest(previous_samples, new_samples)
 
-    #print(anomaly_score)
-
-    samples = get_df(CH_CLIENT, SELECT_QUERY)
+    print(new_samples)
+    print(anomaly_score)
+    print(anomaly_score.shape[0])
 
     print('analyzer_1 finished its work')
 

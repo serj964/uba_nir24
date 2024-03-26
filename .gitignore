@@ -5,6 +5,7 @@ venv/
 build/
 postgres-data/
 rabbitmq-data/
+grafana-data/
 r4.2/
 *cache*
 .ipynb_checkpoints/

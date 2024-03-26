@@ -7,6 +7,8 @@ QUEUE_ARGS = {
     'x-queue-mode': 'lazy',
 }
 
+USER_WORK_DAYS_NUMBER = 30
+
 
 class Config:
     CH_HOST = os.getenv('CH_HOST', 'localhost')

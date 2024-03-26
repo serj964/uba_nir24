@@ -20,14 +20,9 @@ services:
 
   clickhouse:
     image: clickhouse/clickhouse-server:22.6-alpine
-    healthcheck:
-      test: [ 'CMD', 'curl', '-f', 'http://localhost:8123' ]
-      interval: 10s
-      timeout: 3s
-      retries: 5
-    ports:
-      - "8123:8123"
-      - "9000:9000"
+    restart: always
+    env_file:
+      - envs/.env
     environment:
       CLICKHOUSE_USER: user
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
@@ -36,6 +31,14 @@ services:
 #      - ./click_rabbit_config/cluster_config.xml:/etc/clickhouse-server/config.d/local.xml
 #      - ./click_rabbit_config/macros01.xml:/etc/clickhouse-server/config.d/macros.xml
 #      - ./click_rabbit_config/rabbitmq.xml:/etc/clickhouse-server/config.d/rabbitmq.xml
+    healthcheck:
+      test: [ 'CMD', 'curl', '-f', 'http://localhost:8123' ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    ports:
+      - "8123:8123"
+      - "9000:9000"
     ulimits:
       nproc: 65535
       nofile:
@@ -53,6 +56,25 @@ services:
 #      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
 #    depends_on:
 #      -
+  grafana:
+    image: grafana/grafana:6.7.2
+    restart: always
+    env_file:
+      - envs/.env
+    environment:
+      - GF_SECURITY_ADMIN_USER=user
+      - GF_SECURITY_ADMIN_PASSWORD=password
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./grafana-data:/var/lib/grafana
+    #  - ./grafana/provisioning:/etc/grafana/provisioning
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "3000:3000"
 
   rabbitmq:
     image: rabbitmq:3-management

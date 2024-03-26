@@ -4,9 +4,11 @@ import json
 
 import pandas as pd
 from config import QUEUE_ARGS, Config
-from externals.rabbit import create_rmq_connection, declare_queue
-from features import device_1, file_1, logon_1
-from features.utils import merge_and_save_features
+
+from app.externals.clickhouse import send_feature_to_analyzer
+from app.externals.rabbit import create_rmq_connection, declare_queue
+from app.features import device_1, file_1, logon_1
+from app.features.utils import merge_and_save_features
 
 USED_FEATURES = [logon_1, device_1, file_1]
 
@@ -26,14 +28,22 @@ def handler_json_body_wrapper(func):
 def prepare_df(instance_data):
     new_logs = pd.DataFrame(instance_data)
 
-    merged_df = None
+    previous_features_merged = None
+    new_features_merged = None
     for feature in USED_FEATURES:
-        feature = feature(new_logs)
-        merged_df = merge_and_save_features(feature, merged_df)
+        previous_feature, new_feature = feature(new_logs)
+        previous_features_merged = merge_and_save_features(previous_feature, previous_features_merged)
+        new_features_merged = merge_and_save_features(new_feature, new_features_merged)
 
-    print(merged_df.head(10))
-    print(merged_df.shape)
-    # print(instance_data)
+    previous_features_merged = previous_features_merged.sort_values(by=['user', 'date']).reset_index(drop=True)
+    send_feature_to_analyzer(previous_features_merged, 'previous')
+
+    new_features_merged = new_features_merged.sort_values(by=['user', 'date']).reset_index(drop=True)
+    send_feature_to_analyzer(new_features_merged, 'new')
+    #print(previous_features_merged[(previous_features_merged['mean_dev'] != 0) | (previous_features_merged['mean_dev_x'] != 0) | (previous_features_merged['mean_dev_y'] != 0)])
+    #print(new_features_merged[(new_features_merged['mean_dev'] != 0) | (new_features_merged['mean_dev_x'] != 0) | (new_features_merged['mean_dev_y'] != 0)])
+    print(previous_features_merged)
+    print(new_features_merged)
 
 
 def consume(exchange, queue_name):

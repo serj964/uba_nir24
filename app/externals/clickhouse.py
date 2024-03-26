@@ -2,6 +2,13 @@ import clickhouse_driver
 import pandas as pd
 
 from app.config import Config
+from app.sql_scripts import (
+    create_analyzer_table,
+    drop_analyzer_table,
+    insert_df_into_analyzer,
+    insert_df_into_logs,
+    select_previous_logs
+)
 
 
 def _get_ch_client(host: str, port: int, database: str, username: str, password: str) -> clickhouse_driver.Client:
@@ -34,6 +41,20 @@ def insert_df(ch_client: clickhouse_driver.Client, query: str, df: pd.DataFrame)
         dataframe=df,
         settings={'use_numpy': True, 'insert_block_size': 50000},
     )
+
+
+def get_previous_logs(features: str) -> pd.DataFrame:
+    return get_df(CH_CLIENT, select_previous_logs.format(features))
+
+
+def send_logs_to_click(logs_to_send: pd.DataFrame) -> None:
+    insert_df(CH_CLIENT, insert_df_into_logs, logs_to_send)
+
+
+def send_feature_to_analyzer(feature_to_send: pd.DataFrame, period: str) -> None:
+    CH_CLIENT.execute(drop_analyzer_table.format(period))
+    CH_CLIENT.execute(create_analyzer_table.format(period))
+    insert_df(CH_CLIENT, insert_df_into_analyzer.format(period), feature_to_send)
 
 
 CH_CLIENT = _get_ch_client(

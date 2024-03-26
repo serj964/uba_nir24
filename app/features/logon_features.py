@@ -1,12 +1,16 @@
 
+from typing import Tuple
+
 import pandas as pd
 
-from .utils import enrich_logs_df, generate_all_logs_df, get_previous_logs, send_logs
+from app.externals.clickhouse import get_previous_logs, send_logs_to_click
+
+from .utils import calculate_new_logs_num, enrich_logs_df, generate_feature
 
 FEATURES = 'logon'
 
 
-def logon_1(new_logs: pd.DataFrame) -> pd.DataFrame:
+def logon_1(new_logs: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     описание фичи:
 
@@ -15,21 +19,21 @@ def logon_1(new_logs: pd.DataFrame) -> pd.DataFrame:
     feature_name = 'logon_1'
 
     # загрузка логов
-    previous_logs = get_previous_logs(feature_name)
+    previous_logs_num = get_previous_logs(feature_name)
     new_logs = enrich_logs_df(new_logs, FEATURES)
 
     # условие
     new_logs = new_logs[new_logs.metadata.str.contains('"activity": "Logon"')].reset_index(drop=True)
 
     # вычисления и выгрузка логов
-    all_logs, new_logs_to_send = generate_all_logs_df(previous_logs, new_logs)
-    # send_logs(all_logs)
+    new_logs_num = calculate_new_logs_num(new_logs)
+    # send_logs_to_click(new_logs_num)
+    previous_feature, new_feature = generate_feature(previous_logs_num, new_logs_num, feature_name)
 
-    return all_logs
-    # return new_logs_to_send
+    return previous_feature, new_feature
 
 
-def logon_2(new_logs: pd.DataFrame) -> pd.DataFrame:
+def logon_2(new_logs: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     описание фичи:
 
@@ -38,16 +42,16 @@ def logon_2(new_logs: pd.DataFrame) -> pd.DataFrame:
     feature_name = 'logon_2'
 
     # загрузка логов
-    previous_logs = get_previous_logs(SELECT_PREVIOUS_LOGS_QUERY.format(feature_name))
+    previous_logs_num = get_previous_logs(feature_name)
     new_logs = enrich_logs_df(new_logs, FEATURES)
 
     # условие
     new_logs = new_logs[new_logs.metadata.str.contains('"activity": "Logoff"')].reset_index(drop=True)
 
     # вычисления и выгрузка логов
-    all_logs, new_logs_to_send = generate_all_logs_df(previous_logs, new_logs)
-    # send_logs(all_logs)
+    new_logs_num = calculate_new_logs_num(new_logs)
+    # send_logs_to_click(new_logs_num)
+    previous_feature, new_feature = generate_feature(previous_logs_num, new_logs_num, feature_name)
 
-    return all_logs
-    # return new_logs_to_send
+    return previous_feature, new_feature
 

@@ -18,6 +18,7 @@ def enrich_logs_df(df: pd.DataFrame, features: str) -> pd.DataFrame:
     df['date'] = pd.to_datetime(df['datetime']).dt.date
     df['nday'] = pd.to_datetime(df['date']).dt.day_of_week
     df['is_weekend'] = df['nday'].apply(lambda x: 1 if x in [5, 6] else 0)
+    # df['is_work_hours'] = df['nday'].apply(lambda x: 1 if x in [5, 6] else 0)
 
     df['date'] = df['date'].astype(str)
 

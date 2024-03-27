@@ -1,7 +1,7 @@
 import clickhouse_driver
 import pandas as pd
 
-from app.config import Config
+from app.config import Config, DEBUG_MODE
 from app.sql_scripts import (
     create_analyzer_table,
     drop_analyzer_table,
@@ -51,20 +51,21 @@ def get_previous_logs(features: str) -> pd.DataFrame:
 
 def send_logs_to_click(logs_to_send: pd.DataFrame, feature_name) -> None:
     logs_to_send['feature'] = feature_name
-    insert_df(CH_CLIENT, insert_df_into_logs, logs_to_send)
+    if not DEBUG_MODE:
+        insert_df(CH_CLIENT, insert_df_into_logs, logs_to_send)
 
 
 def send_feature_to_analyzer(feature_to_send: pd.DataFrame, period: str) -> None:
     features = ''
 
     cols = feature_to_send.columns[3:]
-    print(cols)
     for col in cols:
         features += ', {} Float32'.format(col)
 
-    CH_CLIENT.execute(drop_analyzer_table.format(period))
-    CH_CLIENT.execute(create_analyzer_table.format(period=period,features=features))
-    insert_df(CH_CLIENT, insert_df_into_analyzer.format(period), feature_to_send)
+    if not DEBUG_MODE:
+        CH_CLIENT.execute(drop_analyzer_table.format(period))
+        CH_CLIENT.execute(create_analyzer_table.format(period=period,features=features))
+        insert_df(CH_CLIENT, insert_df_into_analyzer.format(period), feature_to_send)
 
 
 def get_features(period: str) -> pd.DataFrame:
@@ -72,7 +73,8 @@ def get_features(period: str) -> pd.DataFrame:
 
 
 def send_anomaly_score(anomaly_score_to_send: pd.DataFrame) -> None:
-    insert_df(CH_CLIENT, insert_anomaly_score, anomaly_score_to_send)
+    if not DEBUG_MODE:
+        insert_df(CH_CLIENT, insert_anomaly_score, anomaly_score_to_send)
 
 
 CH_CLIENT = _get_ch_client(

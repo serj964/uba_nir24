@@ -21,7 +21,7 @@ def publish_msg(exchange, queue_name, body):
 
 
 def read_logs(start_datetime, end_datetime):
-    all_logs = pd.read_csv('./logon+device+file_order_by_datetime.csv')
+    all_logs = pd.read_csv('./logon+device+file+mail_order_by_datetime.csv')
     current_logs_dict = all_logs[(all_logs.datetime >= start_datetime) & (all_logs.datetime < end_datetime)].to_dict()
 
     return json.dumps(current_logs_dict, default=str, ensure_ascii=False)

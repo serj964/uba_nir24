@@ -12,9 +12,7 @@ FEATURES = 'device'
 
 def device_1(new_logs: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    описание фичи:
-
-
+    описание фичи: частота подключений внешних накопителей
     """
     feature_name = 'device_1'
 

@@ -9,6 +9,9 @@ QUEUE_ARGS = {
 
 USER_WORK_DAYS_NUMBER = 30
 
+# if DEBUG_MODE=TRUE pre_processer does not send features and scores to clickhouse
+DEBUG_MODE = False
+
 
 class Config:
     CH_HOST = os.getenv('CH_HOST', 'localhost')

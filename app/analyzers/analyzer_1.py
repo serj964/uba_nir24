@@ -1,11 +1,7 @@
 
 import pandas as pd
 from sklearn.ensemble import IsolationForest
-
-from app.externals.clickhouse import CH_CLIENT, get_df
-
-SELECT_PREVIOUS_QUERY = 'SELECT * FROM previous_analyzer'
-SELECT_NEW_QUERY = 'SELECT * FROM new_analyzer'
+from app.externals.clickhouse import send_anomaly_score, get_features
 
 
 def _isolation_forest(previous_samples: pd.DataFrame, new_samples: pd.DataFrame):
@@ -18,18 +14,18 @@ def _isolation_forest(previous_samples: pd.DataFrame, new_samples: pd.DataFrame)
     anomaly_score = clf.score_samples(new_samples_np)
 
     anomaly_score_df = new_samples[['user', 'date']]
-    anomaly_score_df['anomaly_score'] = anomaly_score
+    anomaly_score_df['anomaly_score'] = [abs(score) for score in anomaly_score]
 
     return anomaly_score_df
 
 
 def main():
-    previous_samples = get_df(CH_CLIENT, SELECT_PREVIOUS_QUERY)
-    new_samples = get_df(CH_CLIENT, SELECT_NEW_QUERY)
+    previous_samples = get_features('previous')
+    new_samples = get_features('new')
 
     anomaly_score = _isolation_forest(previous_samples, new_samples)
+    send_anomaly_score(anomaly_score)
 
-    print(new_samples)
     print(anomaly_score)
     print(anomaly_score.shape[0])
 

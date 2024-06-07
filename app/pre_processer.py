@@ -7,10 +7,10 @@ from config import QUEUE_ARGS, Config
 
 from app.externals.clickhouse import send_feature_to_analyzer
 from app.externals.rabbit import create_rmq_connection, declare_queue
-from app.features import device_1, file_1, logon_1, file_2, logon_2, mail_2, mail_1, mail_3
+from app.features import device_1, file_1, logon_1, file_2, logon_2, mail_2, mail_1, mail_3, file_3
 from app.features.utils import merge_and_save_features
 
-USED_FEATURES = [logon_1, logon_2, device_1, file_1, file_2, mail_1, mail_2, mail_3]
+USED_FEATURES = [logon_1, logon_2, device_1, file_1, file_2, mail_1, mail_2, mail_3, file_3]
 
 
 def handler_json_body_wrapper(func):
